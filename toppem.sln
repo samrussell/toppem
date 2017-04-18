@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "toppem", "toppem\toppem.csproj", "{59D240CD-B41B-4B68-8199-46C7BA7E4610}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "toppemtests", "toppemtests\toppemtests.csproj", "{F657A43E-17C0-430B-86F7-FEE4D52A3346}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{59D240CD-B41B-4B68-8199-46C7BA7E4610}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{59D240CD-B41B-4B68-8199-46C7BA7E4610}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{59D240CD-B41B-4B68-8199-46C7BA7E4610}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{59D240CD-B41B-4B68-8199-46C7BA7E4610}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F657A43E-17C0-430B-86F7-FEE4D52A3346}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F657A43E-17C0-430B-86F7-FEE4D52A3346}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F657A43E-17C0-430B-86F7-FEE4D52A3346}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F657A43E-17C0-430B-86F7-FEE4D52A3346}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
