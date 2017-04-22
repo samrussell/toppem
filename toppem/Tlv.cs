@@ -16,5 +16,24 @@ namespace toppem
             this.Type = type;
             this.Data = data;
         }
+
+        public override bool Equals(object obj)
+        {
+            if(obj == null)
+            {
+                return false;
+            }
+
+            var tlv = obj as Tlv;
+
+            return (tlv != null)
+                && (Type == tlv.Type)
+                && (Data.SequenceEqual(tlv.Data));
+        }
+
+        public override int GetHashCode()
+        {
+            return Type.GetHashCode() ^ Data.GetHashCode();
+        }
     }
 }
