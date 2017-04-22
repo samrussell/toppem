@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="BgpMessage.cs" />
     <Compile Include="BgpMessageParser.cs" />
+    <Compile Include="BgpKeepaliveMessage.cs" />
     <Compile Include="BgpOpenMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tlv.cs" />
