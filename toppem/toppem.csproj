@@ -56,15 +56,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BgpNotificationMessage.cs" />
+    <Compile Include="BgpUpdateMessage.cs" />
     <Compile Include="IBgpMessage.cs" />
     <Compile Include="BgpMessageParser.cs" />
     <Compile Include="BgpKeepaliveMessage.cs" />
     <Compile Include="BgpMessageEncoder.cs" />
     <Compile Include="BgpOpenMessage.cs" />
     <Compile Include="IBgpMessageVisitor.cs" />
+    <Compile Include="Prefix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StreamParser.cs" />
     <Compile Include="Tlv.cs" />
+    <Compile Include="PrefixParser.cs" />
     <Compile Include="TlvParser.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -9,6 +9,7 @@ namespace toppem
     public interface IBgpMessageVisitor
     {
         void Visit(BgpOpenMessage openMessage);
+        void Visit(BgpUpdateMessage openMessage);
         void Visit(BgpKeepaliveMessage keepaliveMessage);
         void Visit(BgpNotificationMessage notificationMessage);
     }

@@ -19,9 +19,8 @@ namespace toppemtests
         }
 
         [Fact]
-        public void BgpMessageEncodesToTlv()
+        public void BgpOpenMessageEncodesToTlv()
         {
-            // open message
             var serialisedOpenMessage = new byte[]
             {
                 4, // BGP version 4
@@ -32,7 +31,7 @@ namespace toppemtests
             };
             BgpMessageEncodeDecode(new Tlv(1, serialisedOpenMessage));
 
-            // open message with optional params
+            // with optional params
             var serialisedOpenMessageWithParams = new byte[]
             {
                 4, // BGP version 4
@@ -45,6 +44,25 @@ namespace toppemtests
                 0x02, 0x02, 0x02, 0x00, // capability, length 2
             };
             BgpMessageEncodeDecode(new Tlv(1, serialisedOpenMessageWithParams));
+        }
+
+        [Fact]
+        public void BgpUpdateMessageEncodesToTlv()
+        {
+            var serialisedUpdateMessageOnlyWithdrawals = new byte[]
+            {
+                14, 0, // length in bytes to come
+                24, 10, 1, 1, // 10.1.1.0/24
+                25, 10, 2, 1, 0, // 10.2.1.0/25
+                15, 10, 4, // 10.4.0.0/15
+                8, 11, // 11.0.0.0/8
+            };
+            BgpMessageEncodeDecode(new Tlv(2, serialisedUpdateMessageOnlyWithdrawals));
+        }
+
+        [Fact]
+        public void BgpMessageEncodesToTlv()
+        {
             // keepalive message
             BgpMessageEncodeDecode(new Tlv(3, new byte[] { }));
             // notification message "Unacceptable Hold Time"

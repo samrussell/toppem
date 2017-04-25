@@ -15,6 +15,8 @@ namespace toppem
             {
                 case 1:
                     return DecodeBgpOpenMessage(tlv);
+                case 2:
+                    return DecodeBgpUpdateMessage(tlv);
                 case 3:
                     return new BgpKeepaliveMessage();
                 case 4:
@@ -49,6 +51,17 @@ namespace toppem
             }
         }
 
+        BgpUpdateMessage DecodeBgpUpdateMessage(Tlv tlv)
+        {
+            using (var dataStream = new MemoryStream(tlv.Data))
+            {
+                var withdrawnRoutesLength = ReadNumber(dataStream, 2);
+                var withdrawnRoutes = ParsePrefixes(dataStream, withdrawnRoutesLength);
+
+                return new BgpUpdateMessage(withdrawnRoutes);
+            }
+        }
+
         IEnumerable<Tlv> ParseCapabilities(Stream dataStream)
         {
             var capabilitiesLength = ReadNumber(dataStream, 1);
@@ -60,6 +73,21 @@ namespace toppem
             }
 
             return capabilities;
+        }
+
+        IEnumerable<Prefix> ParsePrefixes(Stream dataStream, int withdrawnRoutesLength)
+        {
+            var prefixes = new List<Prefix>();
+            var parser = new PrefixParser();
+            var stopLength = dataStream.Position + withdrawnRoutesLength;
+            while (dataStream.Position < stopLength)
+            {
+                var prefix = parser.Decode(dataStream);
+
+                prefixes.Add(prefix);
+            }
+
+            return prefixes;
         }
 
         BgpNotificationMessage DecodeBgpNotificationMessage(Tlv tlv)

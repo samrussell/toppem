@@ -31,6 +31,22 @@ namespace toppem
             return EncodeNumber(encodedCapabilities.Length, 1).Concat(encodedCapabilities);
         }
 
+        public void Visit(BgpUpdateMessage updateMessage)
+        {
+            var data = EncodePrefixes(updateMessage.prefixes);
+            tlv = new Tlv(2, data.ToArray());
+        }
+
+        IEnumerable<byte> EncodePrefixes(IEnumerable<Prefix> prefixes)
+        {
+            var outStream = new MemoryStream();
+            var parser = new PrefixParser();
+            prefixes.ToList().ForEach(prefix => parser.Encode(outStream, prefix));
+            var encodedPrefixes = outStream.GetBuffer().Take(Convert.ToInt32(outStream.Position)).ToArray();
+
+            return EncodeNumber(encodedPrefixes.Length, 2).Concat(encodedPrefixes);
+        }
+
         public void Visit(BgpKeepaliveMessage keepaliveMessage)
         {
             tlv = new Tlv(3, new byte[] { });
