@@ -21,6 +21,11 @@ namespace toppem
 
         public Tlv Decode(Stream stream)
         {
+            if (stream.Length == stream.Position)
+            {
+                return null;
+            }
+
             return new Tlv(ReadType(stream), ReadData(stream));
         }
 

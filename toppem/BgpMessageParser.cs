@@ -43,13 +43,23 @@ namespace toppem
                 var asNum = ReadNumber(dataStream, 2);
                 var holdTime = ReadNumber(dataStream, 2);
                 var identifier = ReadNumber(dataStream, 4);
-                var optionalParamsLength = tlv.Data.Length - (1 + 2 + 2 + 4);
-                byte[] input = new byte[optionalParamsLength];
-                int numBytesRead = 0;
-                dataStream.Read(input, numBytesRead, optionalParamsLength);
+                var capabilities = ParseCapabilities(dataStream);
 
-                return new BgpOpenMessage(version, asNum, holdTime, identifier);
+                return new BgpOpenMessage(version, asNum, holdTime, identifier, capabilities);
             }
+        }
+
+        IEnumerable<Tlv> ParseCapabilities(Stream dataStream)
+        {
+            var capabilitiesLength = ReadNumber(dataStream, 1);
+            var capabilities = new List<Tlv>();
+            var parser = new TlvParser(1, 1);
+            while(dataStream.Position < dataStream.Length)
+            {
+                capabilities.Add(parser.Decode(dataStream));
+            }
+
+            return capabilities;
         }
 
         BgpNotificationMessage DecodeBgpNotificationMessage(Tlv tlv)

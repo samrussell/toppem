@@ -43,6 +43,17 @@ namespace toppemtests
             TlvReaderDecodes(2, 2, serializedTlv, expectedTlv);
         }
 
+        [Fact]
+        public void TlvReaderReturnsNullOnEmptyStream()
+        {
+            var parser = new TlvParser(1, 1);
+            using (var memStream = new MemoryStream(new byte[] { }))
+            {
+                var tlv = parser.Decode(memStream);
+                Assert.Equal(null, tlv);
+            }
+        }
+
         void TlvReaderDecodes(int typeLength, int sizeLength, byte[] serializedTlv, Tlv expectedTlv)
         {
             var parser = new TlvParser(typeLength, sizeLength);

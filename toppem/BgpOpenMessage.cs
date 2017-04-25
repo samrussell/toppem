@@ -12,13 +12,15 @@ namespace toppem
         public int asNum;
         public int holdTime;
         public int identifier;
+        public IEnumerable<Tlv> capabilities;
 
-        public BgpOpenMessage(int version, int asNum, int holdTime, int identifier)
+        public BgpOpenMessage(int version, int asNum, int holdTime, int identifier, IEnumerable<Tlv> capabilities)
         {
             this.version = version;
             this.asNum = asNum;
             this.holdTime = holdTime;
             this.identifier = identifier;
+            this.capabilities = capabilities;
         }
 
         public void Accept(IBgpMessageVisitor visitor)
