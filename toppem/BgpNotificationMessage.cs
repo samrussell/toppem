@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public class BgpOpenMessage : IBgpMessage
+    public class BgpNotificationMessage : IBgpMessage
     {
-        public BgpOpenMessage(int version, int asNum, int holdTime, int identifier)
+        public byte[] data;
+
+        public BgpNotificationMessage(byte[] data)
         {
+            this.data = data;
         }
 
         public void Accept(IBgpMessageVisitor visitor)

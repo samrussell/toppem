@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public class BgpKeepaliveMessage : BgpMessage
+    public class BgpKeepaliveMessage : IBgpMessage
     {
+        public void Accept(IBgpMessageVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }
