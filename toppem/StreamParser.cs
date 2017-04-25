@@ -22,7 +22,7 @@ namespace toppem
 
         protected void WriteNumber(Stream stream, int length, int number)
         {
-            stream.Write(EncodeNumber(number, length), 0, length);
+            stream.Write(EncodeNumber(number, length).ToArray(), 0, length);
         }
 
         protected int DecodeNumber(byte[] serializedNumber, int length)
@@ -43,14 +43,14 @@ namespace toppem
             throw new Exception(@"sizeLength must be 1, 2 or 4");
         }
 
-        protected byte[] EncodeNumber(int number, int length)
+        protected IEnumerable<Byte> EncodeNumber(int number, int length)
         {
             byte[] serializedNumber = BitConverter.GetBytes(number);
 
             if (_networkByteOrder)
                 Array.Reverse(serializedNumber);
 
-            return serializedNumber;
+            return serializedNumber.Take(length);
         }
     }
 }
