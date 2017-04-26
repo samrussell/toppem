@@ -63,6 +63,7 @@
     <Compile Include="BgpMessageEncoder.cs" />
     <Compile Include="BgpOpenMessage.cs" />
     <Compile Include="IBgpMessageVisitor.cs" />
+    <Compile Include="Packable.cs" />
     <Compile Include="Prefix.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StreamParser.cs" />
