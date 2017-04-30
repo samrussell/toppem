@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="BgpNotificationMessage.cs" />
     <Compile Include="BgpUpdateMessage.cs" />
+    <Compile Include="FieldOrderAttribute.cs" />
     <Compile Include="IBgpMessage.cs" />
     <Compile Include="BgpMessageParser.cs" />
     <Compile Include="BgpKeepaliveMessage.cs" />

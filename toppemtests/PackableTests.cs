@@ -28,8 +28,11 @@ namespace toppemtests
 
     public class PackableSubclass : Packable
     {
-        public byte i8;
+        [FieldOrder(2)]
         public short i16;
+        [FieldOrder(1)]
+        public byte i8;
+        [FieldOrder(3)]
         public int i32;
 
         public PackableSubclass(byte i8, short i16, int i32)

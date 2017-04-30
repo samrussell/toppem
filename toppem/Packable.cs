@@ -11,7 +11,7 @@ namespace toppem
     {
         public byte[] Pack()
         {
-            return GetType().GetFields().Select(field => PackField(field)).Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next)).ToArray();
+            return GetType().GetFields().OrderBy(field => ((FieldOrderAttribute)field.GetCustomAttributes(typeof(FieldOrderAttribute), false)[0]).Order).Select(field => PackField(field)).Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next)).ToArray();
         }
 
         IEnumerable<byte> PackField(FieldInfo field)
