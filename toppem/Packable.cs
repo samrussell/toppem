@@ -9,9 +9,13 @@ namespace toppem
 {
     public class Packable
     {
-        public byte[] Pack()
+        public IEnumerable<byte> Pack()
         {
-            return GetType().GetFields().OrderBy(field => ((FieldOrderAttribute)field.GetCustomAttributes(typeof(FieldOrderAttribute), false)[0]).Order).Select(field => PackField(field)).Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next)).ToArray();
+            return GetType().GetFields()
+                .Where(field => Attribute.IsDefined(field, typeof(FieldOrderAttribute)))
+                .OrderBy(field => ((FieldOrderAttribute)field.GetCustomAttributes(typeof(FieldOrderAttribute), false)[0]).Order)
+                .Select(field => PackField(field))
+                .Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next));
         }
 
         IEnumerable<byte> PackField(FieldInfo field)

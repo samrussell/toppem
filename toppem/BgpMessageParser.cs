@@ -9,6 +9,11 @@ namespace toppem
 {
     public class BgpMessageParser : StreamParser
     {
+        public BgpMessageParser()
+        {
+            _networkByteOrder = true;
+        }
+
         public IBgpMessage Decode(Tlv tlv)
         {
             switch (tlv.Type)

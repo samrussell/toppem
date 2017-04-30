@@ -22,7 +22,14 @@ namespace toppemtests
         public void SubclassesPackFields()
         {
             var subclass = new PackableSubclass(0xfe, 0x1234, 0x23456789);
-            Assert.Equal(new byte[] { 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89 }, subclass.Pack());
+            Assert.Equal(new byte[] { 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89 }, subclass.Pack().ToArray());
+        }
+
+        [Fact]
+        public void SubclassesUnpackFields()
+        {
+            var subclass = new PackableSubclass(0xfe, 0x1234, 0x23456789);
+            Assert.Equal(new byte[] { 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89 }, subclass.Pack().ToArray());
         }
     }
 

@@ -13,11 +13,12 @@ namespace toppem
 
         public void Visit(BgpOpenMessage openMessage)
         {
-            var data = EncodeNumber(openMessage.version, 1).
-                Concat(EncodeNumber(openMessage.asNum, 2)).
-                Concat(EncodeNumber(openMessage.holdTime, 2)).
-                Concat(EncodeNumber(openMessage.identifier, 4)).
-                Concat(EncodeCapabilities(openMessage.capabilities));
+            //var data = EncodeNumber(openMessage.version, 1).
+            //    Concat(EncodeNumber(openMessage.asNum, 2)).
+            //    Concat(EncodeNumber(openMessage.holdTime, 2)).
+            //    Concat(EncodeNumber(openMessage.identifier, 4)).
+            //    Concat(EncodeCapabilities(openMessage.capabilities));
+            var data = openMessage.Pack().Concat(EncodeCapabilities(openMessage.capabilities));
             tlv = new Tlv(1, data.ToArray());
         }
 
