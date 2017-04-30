@@ -11,11 +11,15 @@ namespace toppem
     {
         public IEnumerable<byte> Pack()
         {
-            return GetType().GetFields()
-                .Where(field => Attribute.IsDefined(field, typeof(FieldOrderAttribute)))
-                .OrderBy(field => ((FieldOrderAttribute)field.GetCustomAttributes(typeof(FieldOrderAttribute), false)[0]).Order)
-                .Select(field => PackField(field))
+            return FieldsForPacking(GetType()).Select(field => PackField(field))
                 .Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next));
+        }
+
+        static IOrderedEnumerable<FieldInfo> FieldsForPacking(Type t)
+        {
+            return t.GetFields()
+                .Where(field => Attribute.IsDefined(field, typeof(FieldOrderAttribute)))
+                .OrderBy(field => ((FieldOrderAttribute)field.GetCustomAttributes(typeof(FieldOrderAttribute), false)[0]).Order);
         }
 
         IEnumerable<byte> PackField(FieldInfo field)
@@ -42,6 +46,17 @@ namespace toppem
                 ((data >> 8) & 0xff),
                 (data & 0xff)
             }.Select(x => Convert.ToByte(x));
+        }
+
+        public static T Build<T>(IEnumerable<byte> data) where T : Packable
+        {
+            var fields = FieldsForPacking(typeof(T));
+            return (T)Activator.CreateInstance(typeof(T), GetArgs(fields, data));
+        }
+
+        public static object[] GetArgs(IOrderedEnumerable<FieldInfo> fields, IEnumerable<byte> data)
+        {
+            return null;
         }
     }
 }

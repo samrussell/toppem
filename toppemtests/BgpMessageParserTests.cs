@@ -51,7 +51,7 @@ namespace toppemtests
         {
             var serialisedUpdateMessageOnlyWithdrawals = new byte[]
             {
-                14, 0, // length in bytes to come
+                0, 14, // length in bytes to come
                 24, 10, 1, 1, // 10.1.1.0/24
                 25, 10, 2, 1, 0, // 10.2.1.0/25
                 15, 10, 4, // 10.4.0.0/15

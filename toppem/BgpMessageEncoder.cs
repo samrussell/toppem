@@ -11,6 +11,11 @@ namespace toppem
     {
         public Tlv tlv = null;
 
+        public BgpMessageEncoder()
+        {
+            _networkByteOrder = true;
+        }
+
         public void Visit(BgpOpenMessage openMessage)
         {
             //var data = EncodeNumber(openMessage.version, 1).
