@@ -56,7 +56,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BgpMessageParserTests.cs" />
-    <Compile Include="PackableTests.cs" />
+    <Compile Include="BgpPackerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PrefixParserTests.cs" />
     <Compile Include="TvlParserTests.cs" />

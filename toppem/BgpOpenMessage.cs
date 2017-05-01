@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public class BgpOpenMessage : Packable, IBgpMessage
+    public class BgpOpenMessage : IBgpMessage
     {
         [FieldOrder(1)]
         public byte version;
