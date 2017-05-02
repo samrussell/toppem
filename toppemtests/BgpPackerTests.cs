@@ -39,17 +39,17 @@ namespace toppemtests
     public class Packable
     {
         [FieldOrder(2)]
-        public short i16;
+        public BgpShort i16;
         [FieldOrder(1)]
-        public byte i8;
+        public BgpByte i8;
         [FieldOrder(3)]
-        public int i32;
+        public BgpInt i32;
 
         public Packable(byte i8, short i16, int i32)
         {
-            this.i8 = i8;
-            this.i16 = i16;
-            this.i32 = i32;
+            this.i8 = new BgpByte(i8);
+            this.i16 = new BgpShort(i16);
+            this.i32 = new BgpInt(i32);
         }
 
         public override bool Equals(object obj)

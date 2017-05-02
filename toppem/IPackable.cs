@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public interface IBgpMessage
+    public interface IPackable
     {
-        void Accept(IBgpMessageVisitor visitor);
+        void Accept(IPackableVisitor visitor);
     }
 }

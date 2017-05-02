@@ -12,8 +12,17 @@ namespace toppem
     {
         public IEnumerable<byte> Pack(T obj)
         {
-            return FieldsForPacking(typeof(T)).Select(field => PackField(obj, field))
-                .Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next));
+            var packedOutput = new MemoryStream();
+
+            foreach (var field in FieldsForPacking(typeof(T)))
+            {
+                var fieldValue = field.GetValue(obj) as IPackable;
+                fieldValue.Accept(this);
+            }
+
+            return packedOutput.GetBuffer().Take(Convert.ToInt32(packedOutput.Position)).ToArray();
+                //Select(field => PackField(obj, field))
+                //.Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next));
         }
 
         static IOrderedEnumerable<FieldInfo> FieldsForPacking(Type t)
