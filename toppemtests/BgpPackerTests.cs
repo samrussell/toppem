@@ -39,10 +39,12 @@ namespace toppemtests
         public void SubclassesRecursivelyPackFields()
         {
             var packable = new Packable(0xfe, 0x1234, 0x23456789);
-            var recursivePackable = new RecursivePackable(0xab, 0x2468, 0x13579bdf, packable);
+            var recursivePackable = new RecursivePackable(0xab, 0x2468, packable, 0x13579bdf);
             var serialisedData = new byte[] {
-                0xab, 0x24, 0x68, 0x13, 0x57, 0x9b, 0xdf,
+                0xab,
+                0x24, 0x68,
                 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
+                0x13, 0x57, 0x9b, 0xdf,
             };
             Assert.Equal(serialisedData, new BgpPacker().Pack(recursivePackable).ToArray());
         }
@@ -51,10 +53,12 @@ namespace toppemtests
         public void SubclassesRecursivelyUnpackFields()
         {
             var packable = new Packable(0xfe, 0x1234, 0x23456789);
-            var recursivePackable = new RecursivePackable(0xab, 0x2468, 0x13579bdf, packable);
+            var recursivePackable = new RecursivePackable(0xab, 0x2468, packable, 0x13579bdf);
             var serialisedData = new byte[] {
-                0xab, 0x24, 0x68, 0x13, 0x57, 0x9b, 0xdf,
+                0xab,
+                0x24, 0x68,
                 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
+                0x13, 0x57, 0x9b, 0xdf,
             };
             Assert.Equal(recursivePackable, new BgpPacker().Unpack(typeof(RecursivePackable), serialisedData));
         }
@@ -95,15 +99,15 @@ namespace toppemtests
     {
         [FieldOrder(2)]
         public short i16;
-        [FieldOrder(4)]
+        [FieldOrder(3)]
         [Packable]
         public Packable packable;
         [FieldOrder(1)]
         public byte i8;
-        [FieldOrder(3)]
+        [FieldOrder(4)]
         public int i32;
 
-        public RecursivePackable(byte i8, short i16, int i32, Packable packable)
+        public RecursivePackable(byte i8, short i16, Packable packable, int i32)
         {
             this.i8 = i8;
             this.i16 = i16;
@@ -117,12 +121,13 @@ namespace toppemtests
             return (obj != null)
                 && (i8 == other.i8)
                 && (i16 == other.i16)
-                && (i32 == other.i32);
+                && (i32 == other.i32)
+                && (packable.Equals(other.packable));
         }
 
         public override int GetHashCode()
         {
-            return i8.GetHashCode() ^ i16.GetHashCode() ^ i32.GetHashCode();
+            return i8.GetHashCode() ^ i16.GetHashCode() ^ i32.GetHashCode() ^ packable.GetHashCode();
         }
     }
 }
