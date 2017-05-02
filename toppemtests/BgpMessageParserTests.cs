@@ -43,6 +43,7 @@ namespace toppemtests
                 0x02, 0x02, 0x80, 0x00, // capability, length 2
                 0x02, 0x02, 0x02, 0x00, // capability, length 2
             };
+
             BgpMessageEncodeDecode(new Tlv(1, serialisedOpenMessageWithParams));
         }
 

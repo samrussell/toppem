@@ -45,7 +45,21 @@ namespace toppem
 
         protected IEnumerable<Byte> EncodeNumber(int number, int length)
         {
-            byte[] serializedNumber = BitConverter.GetBytes(number);
+            byte[] serializedNumber;
+            switch (length)
+            {
+                case 1:
+                    serializedNumber = new byte[] { Convert.ToByte(number) };
+                    break;
+                case 2:
+                    serializedNumber = BitConverter.GetBytes(Convert.ToInt16(number));
+                    break;
+                case 4:
+                    serializedNumber = BitConverter.GetBytes(Convert.ToInt32(number));
+                    break;
+                default:
+                    throw new Exception(@"sizeLength must be 1, 2 or 4");
+            }
 
             if (_networkByteOrder)
                 Array.Reverse(serializedNumber);
