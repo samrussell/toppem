@@ -22,17 +22,41 @@ namespace toppemtests
         [Fact]
         public void SubclassesPackFields()
         {
-            var subclass = new Packable(0xfe, 0x1234, 0x23456789);
+            var packable = new Packable(0xfe, 0x1234, 0x23456789);
             var serialisedData = new byte[] { 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89 };
-            Assert.Equal(serialisedData, new BgpPacker<Packable>().Pack(subclass).ToArray());
+            Assert.Equal(serialisedData, new BgpPacker().Pack(packable).ToArray());
         }
 
         [Fact]
         public void SubclassesUnpackFields()
         {
-            var subclass = new Packable(0xfe, 0x1234, 0x23456789);
+            var packable = new Packable(0xfe, 0x1234, 0x23456789);
             var serialisedData = new byte[] { 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89 };
-            Assert.Equal(subclass, new BgpPacker<Packable>().Unpack(serialisedData));
+            Assert.Equal(packable, new BgpPacker().Unpack(typeof(Packable), serialisedData));
+        }
+
+        [Fact]
+        public void SubclassesRecursivelyPackFields()
+        {
+            var packable = new Packable(0xfe, 0x1234, 0x23456789);
+            var recursivePackable = new RecursivePackable(0xab, 0x2468, 0x13579bdf, packable);
+            var serialisedData = new byte[] {
+                0xab, 0x24, 0x68, 0x13, 0x57, 0x9b, 0xdf,
+                0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
+            };
+            Assert.Equal(serialisedData, new BgpPacker().Pack(recursivePackable).ToArray());
+        }
+
+        [Fact]
+        public void SubclassesRecursivelyUnpackFields()
+        {
+            var packable = new Packable(0xfe, 0x1234, 0x23456789);
+            var recursivePackable = new RecursivePackable(0xab, 0x2468, 0x13579bdf, packable);
+            var serialisedData = new byte[] {
+                0xab, 0x24, 0x68, 0x13, 0x57, 0x9b, 0xdf,
+                0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
+            };
+            Assert.Equal(recursivePackable, new BgpPacker().Unpack(typeof(RecursivePackable), serialisedData));
         }
     }
 
@@ -55,6 +79,41 @@ namespace toppemtests
         public override bool Equals(object obj)
         {
             var other = (Packable) obj;
+            return (obj != null)
+                && (i8 == other.i8)
+                && (i16 == other.i16)
+                && (i32 == other.i32);
+        }
+
+        public override int GetHashCode()
+        {
+            return i8.GetHashCode() ^ i16.GetHashCode() ^ i32.GetHashCode();
+        }
+    }
+
+    public class RecursivePackable
+    {
+        [FieldOrder(2)]
+        public short i16;
+        [FieldOrder(4)]
+        [Packable]
+        public Packable packable;
+        [FieldOrder(1)]
+        public byte i8;
+        [FieldOrder(3)]
+        public int i32;
+
+        public RecursivePackable(byte i8, short i16, int i32, Packable packable)
+        {
+            this.i8 = i8;
+            this.i16 = i16;
+            this.i32 = i32;
+            this.packable = packable;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = (RecursivePackable)obj;
             return (obj != null)
                 && (i8 == other.i8)
                 && (i16 == other.i16)

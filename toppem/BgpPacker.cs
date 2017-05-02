@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public class BgpPacker<T>
+    public class BgpPacker
     {
-        public IEnumerable<byte> Pack(T obj)
+        public IEnumerable<byte> Pack(object obj)
         {
-            return FieldsForPacking(typeof(T)).Select(field => PackField(obj, field))
+            return FieldsForPacking(obj.GetType()).Select(field => PackField(obj, field))
                 .Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next));
         }
 
@@ -23,10 +23,18 @@ namespace toppem
                 .OrderBy(field => ((FieldOrderAttribute)field.GetCustomAttributes(typeof(FieldOrderAttribute), false)[0]).Order);
         }
 
-        IEnumerable<byte> PackField(T obj, FieldInfo field)
+        IEnumerable<byte> PackField(object obj, FieldInfo field)
         {
             dynamic data = field.GetValue(obj);
-            return PackData(data);
+
+            if (Attribute.IsDefined(field, typeof(PackableAttribute)))
+            {
+                return new BgpPacker().Pack(data);
+            }
+            else
+            {
+                return PackData(data);
+            }
         }
 
         IEnumerable<byte> PackData(byte data)
@@ -49,22 +57,34 @@ namespace toppem
             }.Select(x => Convert.ToByte(x));
         }
 
-        public T Unpack(IEnumerable<byte> data)
-        {
-            var fields = FieldsForPacking(typeof(T));
-            return (T)Activator.CreateInstance(typeof(T), GetArgs(fields, data));
-        }
-
-        public object[] GetArgs(IOrderedEnumerable<FieldInfo> fields, IEnumerable<byte> data)
+        public object Unpack(Type type, IEnumerable<byte> data)
         {
             var stream = new MemoryStream(data.ToArray());
+            return UnpackFromStream(type, stream);
+        }
+
+        public object UnpackFromStream(Type type, Stream stream)
+        {
+            var fields = FieldsForPacking(type);
+            return Activator.CreateInstance(type, GetArgs(fields, stream));
+        }
+
+        public object[] GetArgs(IOrderedEnumerable<FieldInfo> fields, Stream stream)
+        {
             return fields.Select(field => UnpackField(field, stream)).ToArray();
         }
 
         object UnpackField(FieldInfo field, Stream stream)
         {
-            dynamic emptyField = Activator.CreateInstance(field.FieldType);
-            return UnpackData(emptyField, stream);
+            if (Attribute.IsDefined(field, typeof(PackableAttribute)))
+            {
+                return new BgpPacker().UnpackFromStream(field.FieldType, stream);
+            }
+            else
+            {
+                dynamic emptyField = Activator.CreateInstance(field.FieldType);
+                return UnpackData(emptyField, stream);
+            }
         }
 
         object UnpackData(byte _, Stream stream)
