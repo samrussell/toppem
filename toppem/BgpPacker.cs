@@ -12,8 +12,18 @@ namespace toppem
     {
         public IEnumerable<byte> Pack(object obj)
         {
-            return FieldsForPacking(obj.GetType()).Select(field => PackField(obj, field))
+            var serialisedData = FieldsForPacking(obj.GetType()).Select(field => PackField(obj, field))
                 .Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next));
+
+            if(Attribute.IsDefined(obj.GetType(), typeof(TlvAttribute)))
+            {
+                var tlvAttributes = ((TlvAttribute)obj.GetType().GetCustomAttributes(typeof(TlvAttribute), false)[0]);
+                IEnumerable<byte> serialisedType = PackData((dynamic) Convert.ChangeType(tlvAttributes.Type, tlvAttributes.TypeLength));
+                IEnumerable<byte> serialisedLength = PackData((dynamic)Convert.ChangeType(serialisedData.Count(), tlvAttributes.SizeLength));
+                return serialisedType.Concat(serialisedLength).Concat(serialisedData);
+            }
+
+            return serialisedData;
         }
 
         static IOrderedEnumerable<FieldInfo> FieldsForPacking(Type t)
@@ -29,12 +39,17 @@ namespace toppem
 
             if (Attribute.IsDefined(field, typeof(PackableAttribute)))
             {
-                return new BgpPacker().Pack(data);
+                return Pack(data);
             }
             else
             {
                 return PackData(data);
             }
+        }
+
+        IEnumerable<byte> PackData(ZeroLength data)
+        {
+            return new List<byte> {};
         }
 
         IEnumerable<byte> PackData(byte data)
@@ -59,12 +74,21 @@ namespace toppem
 
         public object Unpack(Type type, IEnumerable<byte> data)
         {
-            var stream = new MemoryStream(data.ToArray());
-            return UnpackFromStream(type, stream);
+            using (var stream = new MemoryStream(data.ToArray()))
+            {
+                return UnpackFromStream(type, stream);
+            }
         }
 
         public object UnpackFromStream(Type type, Stream stream)
         {
+            if (Attribute.IsDefined(type, typeof(TlvAttribute)))
+            {
+                var tlvAttributes = ((TlvAttribute)type.GetCustomAttributes(typeof(TlvAttribute), false)[0]);
+                var tlvType = DelegateMap[tlvAttributes.TypeLength](this, stream);
+                var tlvLength = DelegateMap[tlvAttributes.SizeLength](this, stream);
+            }
+
             var fields = FieldsForPacking(type);
             return Activator.CreateInstance(type, GetArgs(fields, stream));
         }
@@ -82,19 +106,31 @@ namespace toppem
             }
             else
             {
-                dynamic emptyField = Activator.CreateInstance(field.FieldType);
-                return UnpackData(emptyField, stream);
+                return DelegateMap[field.FieldType](this, stream);
             }
         }
+        
+        private static readonly Dictionary<Type, Func<BgpPacker, Stream, object>> DelegateMap = new Dictionary<Type, Func<BgpPacker, Stream, object>>
+        {
+            {typeof(int), (x, y) => x.UnpackInt(y)},
+            {typeof(short), (x, y) => x.UnpackShort(y)},
+            {typeof(byte), (x, y) => x.UnpackByte(y)},
+            {typeof(ZeroLength), (x, y) => x.UnpackZeroLength(y)},
+        };
 
-        object UnpackData(byte _, Stream stream)
+        object UnpackZeroLength(Stream stream)
+        {
+            return null;
+        }
+
+        object UnpackByte(Stream stream)
         {
             var buffer = new byte[1];
             stream.Read(buffer, 0, 1);
             return (object)buffer[0];
         }
 
-        object UnpackData(short _, Stream stream)
+        object UnpackShort(Stream stream)
         {
             var buffer = new byte[2];
             stream.Read(buffer, 0, 2);
@@ -102,7 +138,7 @@ namespace toppem
             return (object)BitConverter.ToInt16(buffer, 0);
         }
 
-        object UnpackData(int _, Stream stream)
+        object UnpackInt(Stream stream)
         {
             var buffer = new byte[4];
             stream.Read(buffer, 0, 4);

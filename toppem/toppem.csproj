@@ -57,6 +57,7 @@
   <ItemGroup>
     <Compile Include="BgpNotificationMessage.cs" />
     <Compile Include="BgpUpdateMessage.cs" />
+    <Compile Include="TlvAttribute.cs" />
     <Compile Include="PackableAttribute.cs" />
     <Compile Include="FieldOrderAttribute.cs" />
     <Compile Include="IBgpMessage.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="Tlv.cs" />
     <Compile Include="PrefixParser.cs" />
     <Compile Include="TlvParser.cs" />
+    <Compile Include="ZeroLength.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
