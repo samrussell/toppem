@@ -23,7 +23,7 @@ namespace toppem
             //    Concat(EncodeNumber(openMessage.holdTime, 2)).
             //    Concat(EncodeNumber(openMessage.identifier, 4)).
             //    Concat(EncodeCapabilities(openMessage.capabilities));
-            var data = new BgpPacker().Pack(openMessage).Concat(EncodeCapabilities(openMessage.capabilities));
+            var data = new FudgePacker().Pack(openMessage).Concat(EncodeCapabilities(openMessage.capabilities));
             tlv = new Tlv(1, data.ToArray());
         }
 

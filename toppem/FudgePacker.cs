@@ -8,20 +8,12 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public class BgpPacker
+    public class FudgePacker
     {
         public IEnumerable<byte> Pack(object obj)
         {
             var serialisedData = FieldsForPacking(obj.GetType()).Select(field => PackField(obj, field))
                 .Aggregate((IEnumerable<byte>) new List<byte>(), (sum, next) => sum.Concat(next));
-
-            if(Attribute.IsDefined(obj.GetType(), typeof(TlvAttribute)))
-            {
-                var tlvAttributes = ((TlvAttribute)obj.GetType().GetCustomAttributes(typeof(TlvAttribute), false)[0]);
-                IEnumerable<byte> serialisedType = PackData((dynamic) Convert.ChangeType(tlvAttributes.Type, tlvAttributes.TypeLength));
-                IEnumerable<byte> serialisedLength = PackData((dynamic)Convert.ChangeType(serialisedData.Count(), tlvAttributes.SizeLength));
-                return serialisedType.Concat(serialisedLength).Concat(serialisedData);
-            }
 
             return serialisedData;
         }
@@ -41,35 +33,20 @@ namespace toppem
             {
                 return Pack(data);
             }
+            else if(Attribute.IsDefined(field, typeof(PacksWithAttribute)))
+            {
+                var packer = ((PacksWithAttribute)field.GetCustomAttributes(typeof(PacksWithAttribute), false)[0]).Packer;
+                var method = packer.GetMethod("Pack", new Type[] { data.GetType() });
+                if (method == null)
+                {
+                    throw new Exception ("Couldn't find packer.Pack for " + data.GetType().ToString());
+                }
+                return (IEnumerable<byte>) method.Invoke(null, new object[] { data });
+            }
             else
             {
-                return PackData(data);
+                throw new Exception("Cannot pack field " + field.Name.ToString());
             }
-        }
-
-        IEnumerable<byte> PackData(ZeroLength data)
-        {
-            return new List<byte> {};
-        }
-
-        IEnumerable<byte> PackData(byte data)
-        {
-            return new List<byte> { data };
-        }
-
-        IEnumerable<byte> PackData(short data)
-        {
-            return new List<int> { ((data >> 8) & 0xff), (data & 0xff) }.Select(x => Convert.ToByte(x));
-        }
-
-        IEnumerable<byte> PackData(int data)
-        {
-            return new List<int> {
-                ((data >> 24) & 0xff),
-                ((data >> 16) & 0xff),
-                ((data >> 8) & 0xff),
-                (data & 0xff)
-            }.Select(x => Convert.ToByte(x));
         }
 
         public object Unpack(Type type, IEnumerable<byte> data)
@@ -90,7 +67,8 @@ namespace toppem
             }
 
             var fields = FieldsForPacking(type);
-            return Activator.CreateInstance(type, GetArgs(fields, stream));
+            var args = GetArgs(fields, stream);
+            return Activator.CreateInstance(type, args);
         }
 
         public object[] GetArgs(IOrderedEnumerable<FieldInfo> fields, Stream stream)
@@ -102,18 +80,28 @@ namespace toppem
         {
             if (Attribute.IsDefined(field, typeof(PackableAttribute)))
             {
-                return new BgpPacker().UnpackFromStream(field.FieldType, stream);
+                return new FudgePacker().UnpackFromStream(field.FieldType, stream);
+            }
+            else if (Attribute.IsDefined(field, typeof(PacksWithAttribute)))
+            {
+                var packer = ((PacksWithAttribute)field.GetCustomAttributes(typeof(PacksWithAttribute), false)[0]).Packer;
+                var method = packer.GetMethod("Unpack", new Type[] { typeof(Type), typeof(Stream) });
+                if (method == null)
+                {
+                    throw new Exception("Couldn't find packer.Pack for " + field.FieldType.ToString());
+                }
+                return method.Invoke(null, new object[] { field.FieldType, stream });
             }
             else
             {
-                return DelegateMap[field.FieldType](this, stream);
+                throw new Exception("Cannot pack field " + field.Name.ToString());
             }
         }
         
-        private static readonly Dictionary<Type, Func<BgpPacker, Stream, object>> DelegateMap = new Dictionary<Type, Func<BgpPacker, Stream, object>>
+        private static readonly Dictionary<Type, Func<FudgePacker, Stream, object>> DelegateMap = new Dictionary<Type, Func<FudgePacker, Stream, object>>
         {
-            {typeof(int), (x, y) => x.UnpackInt(y)},
-            {typeof(short), (x, y) => x.UnpackShort(y)},
+            {typeof(uint), (x, y) => x.UnpackInt(y)},
+            {typeof(ushort), (x, y) => x.UnpackShort(y)},
             {typeof(byte), (x, y) => x.UnpackByte(y)},
             {typeof(ZeroLength), (x, y) => x.UnpackZeroLength(y)},
         };
@@ -135,7 +123,7 @@ namespace toppem
             var buffer = new byte[2];
             stream.Read(buffer, 0, 2);
             Array.Reverse(buffer);
-            return (object)BitConverter.ToInt16(buffer, 0);
+            return (object)BitConverter.ToUInt16(buffer, 0);
         }
 
         object UnpackInt(Stream stream)
@@ -143,7 +131,7 @@ namespace toppem
             var buffer = new byte[4];
             stream.Read(buffer, 0, 4);
             Array.Reverse(buffer);
-            return (object)BitConverter.ToInt32(buffer, 0);
+            return (object)BitConverter.ToUInt32(buffer, 0);
         }
     }
 }
