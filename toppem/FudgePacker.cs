@@ -59,13 +59,6 @@ namespace toppem
 
         public object UnpackFromStream(Type type, Stream stream)
         {
-            if (Attribute.IsDefined(type, typeof(TlvAttribute)))
-            {
-                var tlvAttributes = ((TlvAttribute)type.GetCustomAttributes(typeof(TlvAttribute), false)[0]);
-                var tlvType = DelegateMap[tlvAttributes.TypeLength](this, stream);
-                var tlvLength = DelegateMap[tlvAttributes.SizeLength](this, stream);
-            }
-
             var fields = FieldsForPacking(type);
             var args = GetArgs(fields, stream);
             return Activator.CreateInstance(type, args);
@@ -96,42 +89,6 @@ namespace toppem
             {
                 throw new Exception("Cannot pack field " + field.Name.ToString());
             }
-        }
-        
-        private static readonly Dictionary<Type, Func<FudgePacker, Stream, object>> DelegateMap = new Dictionary<Type, Func<FudgePacker, Stream, object>>
-        {
-            {typeof(uint), (x, y) => x.UnpackInt(y)},
-            {typeof(ushort), (x, y) => x.UnpackShort(y)},
-            {typeof(byte), (x, y) => x.UnpackByte(y)},
-            {typeof(ZeroLength), (x, y) => x.UnpackZeroLength(y)},
-        };
-
-        object UnpackZeroLength(Stream stream)
-        {
-            return null;
-        }
-
-        object UnpackByte(Stream stream)
-        {
-            var buffer = new byte[1];
-            stream.Read(buffer, 0, 1);
-            return (object)buffer[0];
-        }
-
-        object UnpackShort(Stream stream)
-        {
-            var buffer = new byte[2];
-            stream.Read(buffer, 0, 2);
-            Array.Reverse(buffer);
-            return (object)BitConverter.ToUInt16(buffer, 0);
-        }
-
-        object UnpackInt(Stream stream)
-        {
-            var buffer = new byte[4];
-            stream.Read(buffer, 0, 4);
-            Array.Reverse(buffer);
-            return (object)BitConverter.ToUInt32(buffer, 0);
         }
     }
 }
