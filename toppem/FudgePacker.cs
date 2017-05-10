@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public class FudgePacker
+    public class FudgePacker : IPackFudge
     {
         public IEnumerable<byte> Pack(object obj)
         {
@@ -28,36 +28,19 @@ namespace toppem
         IEnumerable<byte> PackField(object obj, FieldInfo field)
         {
             dynamic data = field.GetValue(obj);
-
-            if (Attribute.IsDefined(field, typeof(PackableAttribute)))
-            {
-                return Pack(data);
-            }
-            else if(Attribute.IsDefined(field, typeof(PacksWithAttribute)))
-            {
-                var packer = ((PacksWithAttribute)field.GetCustomAttributes(typeof(PacksWithAttribute), false)[0]).Packer;
-                var method = packer.GetMethod("Pack", new Type[] { data.GetType() });
-                if (method == null)
-                {
-                    throw new Exception ("Couldn't find packer.Pack for " + data.GetType().ToString());
-                }
-                return (IEnumerable<byte>) method.Invoke(null, new object[] { data });
-            }
-            else
-            {
-                throw new Exception("Cannot pack field " + field.Name.ToString());
-            }
+            
+            return FudgeFactory.Packer(field.FieldType).Pack(data);
         }
 
         public object Unpack(Type type, IEnumerable<byte> data)
         {
             using (var stream = new MemoryStream(data.ToArray()))
             {
-                return UnpackFromStream(type, stream);
+                return Unpack(type, stream);
             }
         }
 
-        public object UnpackFromStream(Type type, Stream stream)
+        public object Unpack(Type type, Stream stream)
         {
             var fields = FieldsForPacking(type);
             var args = GetArgs(fields, stream);
@@ -71,24 +54,7 @@ namespace toppem
 
         object UnpackField(FieldInfo field, Stream stream)
         {
-            if (Attribute.IsDefined(field, typeof(PackableAttribute)))
-            {
-                return new FudgePacker().UnpackFromStream(field.FieldType, stream);
-            }
-            else if (Attribute.IsDefined(field, typeof(PacksWithAttribute)))
-            {
-                var packer = ((PacksWithAttribute)field.GetCustomAttributes(typeof(PacksWithAttribute), false)[0]).Packer;
-                var method = packer.GetMethod("Unpack", new Type[] { typeof(Type), typeof(Stream) });
-                if (method == null)
-                {
-                    throw new Exception("Couldn't find packer.Pack for " + field.FieldType.ToString());
-                }
-                return method.Invoke(null, new object[] { field.FieldType, stream });
-            }
-            else
-            {
-                throw new Exception("Cannot pack field " + field.Name.ToString());
-            }
+            return FudgeFactory.Packer(field.FieldType).Unpack(field.FieldType, stream);
         }
     }
 }

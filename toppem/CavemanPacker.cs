@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    public class CavemanPacker
+    public class CavemanPacker : IPackFudge
     {
         private static readonly Dictionary<Type, Func<Stream, object>> DelegateMap = new Dictionary<Type, Func<Stream, object>>
         {
@@ -15,6 +15,12 @@ namespace toppem
             {typeof(ushort), x => CavemanPacker.UnpackShort(x)},
             {typeof(byte), x => CavemanPacker.UnpackByte(x)},
         };
+
+        public IEnumerable<byte> Pack(object toPack)
+        {
+            dynamic input = toPack;
+            return CavemanPacker.Pack(input);
+        }
 
         public static IEnumerable<byte> Pack(byte input)
         {
@@ -49,7 +55,7 @@ namespace toppem
             return (T)DelegateMap[typeof(T)](stream);
         }
 
-        public static object Unpack(Type type, Stream stream)
+        public object Unpack(Type type, Stream stream)
         {
             return DelegateMap[type](stream);
         }

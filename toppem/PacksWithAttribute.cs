@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
-    [AttributeUsage(AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Class)]
     public class PacksWithAttribute : Attribute
     {
-        private Type _packer;
+        private Type _packerType;
 
-        public Type Packer { get { return _packer; } }
+        public Type PackerType { get { return _packerType; } }
 
-        public PacksWithAttribute(Type packer)
+        public PacksWithAttribute(Type packerType)
         {
-            _packer = packer;
+            _packerType = packerType;
         }
     }
 }
