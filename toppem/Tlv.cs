@@ -8,10 +8,10 @@ namespace toppem
 {
     public class Tlv
     {
-        public int Type { get; set; }
+        public uint Type { get; set; }
         public byte[] Data { get; set; }
 
-        public Tlv(int type, byte[] data)
+        public Tlv(uint type, byte[] data)
         {
             this.Type = type;
             this.Data = data;

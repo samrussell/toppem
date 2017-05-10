@@ -16,13 +16,13 @@ namespace toppem
                 return null;
             }
 
-            var bitLength = ReadNumber(stream, 1);
+            var bitLength = (int)ReadNumber(stream, 1);
             return new Prefix(ReadPrefix(stream, bitLength), bitLength);
         }
 
         public void Encode(Stream stream, Prefix prefix)
         {
-            WriteNumber(stream, 1, prefix.bitLength);
+            WriteNumber(stream, 1, (uint)prefix.bitLength);
             WritePrefix(stream, prefix.prefix);
         }
 

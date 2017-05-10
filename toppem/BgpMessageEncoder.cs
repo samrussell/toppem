@@ -34,7 +34,7 @@ namespace toppem
             capabilities.ToList().ForEach(tlv => parser.Encode(outStream, tlv));
             var encodedCapabilities = outStream.GetBuffer().Take(Convert.ToInt32(outStream.Position)).ToArray();
 
-            return EncodeNumber(encodedCapabilities.Length, 1).Concat(encodedCapabilities);
+            return EncodeNumber(Convert.ToUInt32(encodedCapabilities.Length), 1).Concat(encodedCapabilities);
         }
 
         public void Visit(BgpUpdateMessage updateMessage)
@@ -50,7 +50,7 @@ namespace toppem
             prefixes.ToList().ForEach(prefix => parser.Encode(outStream, prefix));
             var encodedPrefixes = outStream.GetBuffer().Take(Convert.ToInt32(outStream.Position)).ToArray();
 
-            return EncodeNumber(encodedPrefixes.Length, 2).Concat(encodedPrefixes);
+            return EncodeNumber(Convert.ToUInt32(encodedPrefixes.Length), 2).Concat(encodedPrefixes);
         }
 
         public void Visit(BgpKeepaliveMessage keepaliveMessage)

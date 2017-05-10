@@ -6,23 +6,24 @@ using System.Threading.Tasks;
 
 namespace toppem
 {
+    [PacksWith(typeof(FudgePacker))]
     public class BgpOpenMessage : IBgpMessage
     {
         [FieldOrder(1)]
         public byte version;
         [FieldOrder(2)]
-        public short asNum;
+        public ushort asNum;
         [FieldOrder(3)]
-        public short holdTime;
+        public ushort holdTime;
         [FieldOrder(4)]
-        public int identifier;
+        public uint identifier;
         public IEnumerable<Tlv> capabilities;
 
-        public BgpOpenMessage(int version, int asNum, int holdTime, int identifier, IEnumerable<Tlv> capabilities)
+        public BgpOpenMessage(uint version, uint asNum, uint holdTime, uint identifier, IEnumerable<Tlv> capabilities)
         {
             this.version = Convert.ToByte(version);
-            this.asNum = Convert.ToInt16(asNum);
-            this.holdTime = Convert.ToInt16(holdTime);
+            this.asNum = Convert.ToUInt16(asNum);
+            this.holdTime = Convert.ToUInt16(holdTime);
             this.identifier = identifier;
             this.capabilities = capabilities;
         }

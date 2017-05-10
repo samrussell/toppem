@@ -80,7 +80,7 @@ namespace toppem
             return capabilities;
         }
 
-        IEnumerable<Prefix> ParsePrefixes(Stream dataStream, int withdrawnRoutesLength)
+        IEnumerable<Prefix> ParsePrefixes(Stream dataStream, uint withdrawnRoutesLength)
         {
             var prefixes = new List<Prefix>();
             var parser = new PrefixParser();

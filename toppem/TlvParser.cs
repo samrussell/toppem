@@ -9,10 +9,10 @@ namespace toppem
 {
     public class TlvParser : StreamParser
     {
-        private int _typeLength;
-        private int _sizeLength;
+        private uint _typeLength;
+        private uint _sizeLength;
 
-        public TlvParser(int typeLength, int sizeLength, bool networkByteOrder = false)
+        public TlvParser(uint typeLength, uint sizeLength, bool networkByteOrder = false)
         {
             _typeLength = typeLength;
             _sizeLength = sizeLength;
@@ -35,7 +35,7 @@ namespace toppem
             WriteData(stream, tlv.Data);
         }
 
-        int ReadType(Stream stream)
+        uint ReadType(Stream stream)
         {
             return ReadNumber(stream, _typeLength);
         }
@@ -45,19 +45,19 @@ namespace toppem
             var size = ReadNumber(stream, _sizeLength);
             byte[] output = new byte[size];
             int numBytesRead = 0;
-            stream.Read(output, numBytesRead, size);
+            stream.Read(output, numBytesRead, Convert.ToInt32(size));
 
             return output;
         }
 
-        void WriteType(Stream stream, int type)
+        void WriteType(Stream stream, uint type)
         {
             WriteNumber(stream, _typeLength, type);
         }
 
         void WriteData(Stream stream, byte[] data)
         {
-            WriteNumber(stream, _sizeLength, data.Length);
+            WriteNumber(stream, _sizeLength, Convert.ToUInt32(data.Length));
             stream.Write(data, 0, data.Length);
         }
     }

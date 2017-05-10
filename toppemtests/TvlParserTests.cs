@@ -48,7 +48,7 @@ namespace toppemtests
             TlvReaderDecodes(2, 2, serializedTlv, expectedTlv);
         }
 
-        void TlvReaderDecodes(int typeLength, int sizeLength, byte[] serializedTlv, Tlv expectedTlv)
+        void TlvReaderDecodes(uint typeLength, uint sizeLength, byte[] serializedTlv, Tlv expectedTlv)
         {
             var parser = new TlvParser(typeLength, sizeLength);
             using(var memStream = new MemoryStream(serializedTlv))
@@ -106,7 +106,7 @@ namespace toppemtests
             TlvReaderDecodes(2, 2, expectedOutput, tlv);
         }
 
-        void TlvReaderEncodes(int typeLength, int sizeLength, byte[] expectedOutput, Tlv tlv)
+        void TlvReaderEncodes(uint typeLength, uint sizeLength, byte[] expectedOutput, Tlv tlv)
         {
             var parser = new TlvParser(typeLength, sizeLength);
             using (var memStream = new MemoryStream())
