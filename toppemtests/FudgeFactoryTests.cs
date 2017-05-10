@@ -70,14 +70,14 @@ namespace toppemtests
             }
         }
 
-        /*[Fact]
+        [Fact]
         public void FudgePackerPackTlvs()
         {
             var packable = new TlvPackable(0xfe, 0x1234, 0x23456789);
             var serialisedData = new byte[] {
                 0xad, 0x00, 0x07, 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
             };
-            Assert.Equal(serialisedData, new FudgePacker().Pack(packable).ToArray());
+            Assert.Equal(serialisedData, FudgeFactory.Packer(typeof(TlvPackable)).Pack(packable).ToArray());
         }
 
         [Fact]
@@ -87,36 +87,42 @@ namespace toppemtests
             var serialisedData = new byte[] {
                 0xad, 0x00, 0x07, 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
             };
-            Assert.Equal(packable, new FudgePacker().Unpack(typeof(TlvPackable), serialisedData));
+            using (var stream = new MemoryStream(serialisedData))
+            {
+                Assert.Equal(packable, FudgeFactory.Packer(typeof(TlvPackable)).Unpack(typeof(TlvPackable), stream));
+            }
         }
 
         [Fact]
         public void FudgePackerRecursivelyPackTlvs()
         {
-            var packable = new Packable(0xfe, 0x1234, 0x23456789);
-            var recursivePackable = new RecursivePackable(0xab, 0x2468, packable, 0x13579bdf);
+            var packable = new TlvPackable(0xfe, 0x1234, 0x23456789);
+            var recursivePackable = new RecursiveTlvPackable(0xab, 0x2468, packable, 0x13579bdf);
             var serialisedData = new byte[] {
                 0xab,
                 0x24, 0x68,
                 0xad, 0x00, 0x07, 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
                 0x13, 0x57, 0x9b, 0xdf,
             };
-            Assert.Equal(serialisedData, new FudgePacker().Pack(recursivePackable).ToArray());
+            Assert.Equal(serialisedData, FudgeFactory.Packer(typeof(RecursiveTlvPackable)).Pack(recursivePackable).ToArray());
         }
 
         [Fact]
         public void FudgePackerRecursivelyUnpackTlvs()
         {
-            var packable = new Packable(0xfe, 0x1234, 0x23456789);
-            var recursivePackable = new RecursivePackable(0xab, 0x2468, packable, 0x13579bdf);
+            var packable = new TlvPackable(0xfe, 0x1234, 0x23456789);
+            var recursivePackable = new RecursiveTlvPackable(0xab, 0x2468, packable, 0x13579bdf);
             var serialisedData = new byte[] {
                 0xab,
                 0x24, 0x68,
                 0xad, 0x00, 0x07, 0xfe, 0x12, 0x34, 0x23, 0x45, 0x67, 0x89,
                 0x13, 0x57, 0x9b, 0xdf,
             };
-            Assert.Equal(recursivePackable, new FudgePacker().Unpack(typeof(RecursivePackable), serialisedData));
-        }*/
+            using (var stream = new MemoryStream(serialisedData))
+            {
+                Assert.Equal(recursivePackable, FudgeFactory.Packer(typeof(RecursiveTlvPackable)).Unpack(typeof(RecursiveTlvPackable), stream));
+            }
+        }
     }
 
     [PacksWith(typeof(FudgePacker))]
@@ -188,7 +194,8 @@ namespace toppemtests
         }
     }
 
-    [Tlv(typeof(byte), typeof(short), 0xad)]
+    [PacksWith(typeof(TlvPacker))]
+    [Tlv(typeof(byte), typeof(ushort), 0xad)]
     public class TlvPackable
     {
         [FieldOrder(1)]
@@ -220,12 +227,12 @@ namespace toppemtests
         }
     }
 
+    [PacksWith(typeof(FudgePacker))]
     public class RecursiveTlvPackable
     {
         [FieldOrder(2)]
         public ushort i16;
         [FieldOrder(3)]
-        [Packable]
         public TlvPackable tlvPackable;
         [FieldOrder(1)]
         public byte i8;

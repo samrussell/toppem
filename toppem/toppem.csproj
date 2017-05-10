@@ -59,6 +59,7 @@
     <Compile Include="BgpUpdateMessage.cs" />
     <Compile Include="CavemanPacker.cs" />
     <Compile Include="FudgeFactory.cs" />
+    <Compile Include="TlvPacker.cs" />
     <Compile Include="IPackFudge.cs" />
     <Compile Include="PacksWithAttribute.cs" />
     <Compile Include="TlvAttribute.cs" />
